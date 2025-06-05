@@ -1,0 +1,14 @@
+
+(cram
+ (deps
+  sudoku.exe
+  (glob_files puzzles/*.s)
+))
+
+(rule
+ (target sudoku.exe)
+ (deps Setup.hs package.yaml stack.yaml (glob_files "app/*") (glob_files "src/*"))
+ (action
+ (progn
+  (system "stack build")
+  (bash "cp $(find .stack-work/dist -type f -name main.exe | head -1) sudoku.exe"))))

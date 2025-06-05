@@ -9,14 +9,13 @@ The most difficult sudoku puzzle I know about was designed by
 [Arto Inkala](https://sudoku2.com/play-the-hardest-sudoku-in-the-world/).
 It takes this solver just over one second to find the solution and check it is the unique solution.
 
-To build and run:
+### build/run (using haskell/stack):
 ```
 stack run puzzles/arto.s
 ```
 
-For more accurate timing:
+### build/test; timed run (using dune/cram)
 ```
-stack build
-cp $(find .stack-work/dist -type f -name main.exe) /tmp/sudoku.exe
-time /tmp/sudoku.exe puzzles/arto.s
+dune test
+dune build; time dune exec ./sudoku.exe puzzles/arto.s
 ```
