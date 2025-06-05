@@ -4,8 +4,8 @@ import Data.Char (ord)
 import Data.List (sortBy)
 import Data.Map (Map)
 import Data.Ord (comparing)
-import Data.Set (Set,union,(\\))
-import Data.Set as Set (toList,fromList)
+import Data.Set (Set,union,(\\),singleton)
+import qualified Data.Set as Set (toList,fromList)
 import qualified Data.Map as Map
 
 import System.Environment (getArgs)
@@ -17,7 +17,7 @@ main = do
   s <- readFile filename
   let g = parse s
   print g
-  sols :: [Grid] <- loopN 0 g
+  sols :: [Grid] <- search g
   print (length sols)
 
 parseCommandLine :: [String] -> String
@@ -35,6 +35,14 @@ parse s = do
 trace :: Show a => a -> IO ()
 --trace x = print x
 trace _ = pure ()
+
+search :: Grid -> IO [Grid]
+search g = if illformed g then pure [] else loopN 0 g
+
+-- special case for illegally placed givens
+illformed :: Grid -> Bool
+illformed g = any bad allPos
+  where bad p = case lookG g p of Nothing -> False; Just d -> d `elem` disallowed g p
 
 loopN :: Int -> Grid -> IO [Grid]
 loopN i g = do
@@ -97,7 +105,7 @@ disallowed g p =
       ]
 
 peers :: Pos -> Set Pos
-peers p = hor p `union` vert p `union` box p
+peers p = (hor p `union` vert p `union` box p) \\ singleton p
 
 hor :: Pos -> Set Pos
 hor Pos{y} = Set.fromList [Pos{x,y} | x <- [1..9] ]
