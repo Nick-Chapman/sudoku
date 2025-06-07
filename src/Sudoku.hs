@@ -13,63 +13,44 @@ import System.Environment (getArgs)
 main :: IO ()
 main = do
   args <- getArgs
-  let filename = parseCommandLine args
-  s <- readFile filename
-  let g = parse s
+  let Config {paths,limit} = parseCommandLine args
+  let path = case paths of [] -> error "no path given"; [x] -> x; _ -> error "too many paths given"
+  g <- parseGivens <$> readFile path
   print g
-  sols :: [Grid] <- search g
-  print (length sols)
+  case limit of
+    Just max -> do
+      let sols = take max (solutions g)
+      mapM_ print sols
+    Nothing -> do
+      let sols = solutions g
+      mapM_ print sols
+      print (length sols)
 
-parseCommandLine :: [String] -> String
-parseCommandLine = \case
-  [x] -> x
-  args -> error (show ("parseCommandLine",args))
+data Config = Config { paths :: [FilePath], limit :: Maybe Int }
 
-parse :: String -> Grid
-parse s = do
-  Grid $ Map.fromList $ [ (Pos {x,y},mkDigit c)
-                        | (y,cs) <- zip [1..] $ lines s
-                        , (x,c) <- zip [1..] cs
-                        , c /= '.' ]
+parseCommandLine :: [String] -> Config
+parseCommandLine = loop config0
+  where
+    config0 = Config { paths = [], limit = Nothing }
+    loop config = \case
+      [] -> config
+      "-1":xs       -> loop config { limit = Just 1 } xs
+      "-2":xs       -> loop config { limit = Just 2 } xs
+      "-3":xs       -> loop config { limit = Just 3 } xs
+      "-limit":n:xs -> loop config { limit = Just (read n) } xs
+      ('-':flag):_  -> error (show ("unknown flag",flag))
+      x:xs          -> loop config { paths = paths config ++ [x] } xs
 
-trace :: Show a => a -> IO ()
---trace x = print x
-trace _ = pure ()
-
-search :: Grid -> IO [Grid]
-search g = if illformed g then pure [] else loopN 0 g
-
--- special case for illegally placed givens
-illformed :: Grid -> Bool
-illformed g = any bad allPos
-  where bad p = case lookG g p of Nothing -> False; Just d -> d `elem` disallowed g p
-
-loopN :: Int -> Grid -> IO [Grid]
-loopN i g = do
-  case infer g of
-    Done -> do
-      print g
-      pure [g]
-    Fail -> do
-      trace ("step", i,"Fail")
-      pure []
-    Infer p d -> do
-      trace ("step", i,"infer",p,d)
-      let g' = extendG g (p,d)
-      loopN (i+1) g'
-    Choice p ds -> do
-      trace ("step", i,"Choice",p,"alts=",ds)
-      let
-        inner :: [(Int,Digit)] -> IO [Grid]
-        inner = \case
-          [] -> pure []
-          (_j,d1):ds -> do
-            trace ("step", i,"Choice",p,"try#",_j, "digit=",d1)
-            sols1 <- loopN (i+1) (extendG g (p,d1))
-            sols2 <- inner ds
-            pure (sols1 ++ sols2)
-        in
-        inner (zip [1..] ds)
+solutions :: Grid -> [Grid]
+solutions g = if illformed g then [] else search g
+  where
+    search :: Grid -> [Grid]
+    search g = do
+      case infer g of
+        Done -> [g]
+        Fail -> []
+        Infer p d -> search (extendG g (p,d))
+        Choice p ds -> concat [ search (extendG g (p,d)) | d <- ds ]
 
 
 data Res = Done | Fail | Infer Pos Digit | Choice Pos [Digit]
@@ -93,6 +74,11 @@ infer g = do
               let (p,ds,_) = case xs' of [] -> undefined; x:_ -> x
               Choice p ds
 
+
+-- special case for illegally placed givens
+illformed :: Grid -> Bool
+illformed g = any bad allPos
+  where bad p = case lookG g p of Nothing -> False; Just d -> d `elem` disallowed g p
 
 allowed :: Grid -> Pos -> Set Digit
 allowed g p = allDigits \\ disallowed g p
@@ -143,6 +129,13 @@ instance Show Grid where
                ] ++ "\n"
       | y <- [1..9]
       ]
+
+parseGivens :: String -> Grid
+parseGivens s = do
+  Grid $ Map.fromList $ [ (Pos {x,y},mkDigit c)
+                        | (y,cs) <- zip [1..] $ lines s
+                        , (x,c) <- zip [1..] cs
+                        , c /= '.' ]
 
 
 data Pos = Pos { x, y :: Int } deriving (Eq,Ord)

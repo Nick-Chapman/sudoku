@@ -19,3 +19,9 @@ stack run puzzles/arto.s
 dune test
 dune build; time dune exec ./sudoku.exe puzzles/arto.s
 ```
+
+### limit search to first N solutions
+```
+dune exec -- ./sudoku.exe puzzles/arto.s -1
+dune exec -- ./sudoku.exe puzzles/empty.s -limit 5
+```
