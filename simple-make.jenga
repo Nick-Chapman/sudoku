@@ -1,0 +1,30 @@
+
+# Build the Haskell source (with explicit dependencies)
+
+Sudoku.hi Sudoku.o : ghc.exe src/Sudoku.hs
+ ./ghc.exe -c Sudoku.hs -XLambdaCase
+
+main.hi main.o : ghc.exe app/main.hs Sudoku.hi
+ ./ghc.exe -c main.hs
+
+
+# Link the executable (including the containers package)
+
+solver.exe : ghc.exe main.o Sudoku.o
+  ./ghc.exe main.o Sudoku.o -package containers -o solver.exe
+
+
+# Choose a ghc binary and create a dispatcher script
+
+latest-version :
+  find $HOME/.stack | grep lib/.*/bin/ghc$ | rev | cut -d/ -f3 | rev | cut -d- -f2 | sort -n | tail -1 > latest-version
+
+version : latest-version
+  cp latest-version version
+#echo 9.8.4 > version
+
+ghc-path : version
+  find $HOME/.stack | grep lib/.*/bin/ghc$ | grep $(cat version) > ghc-path
+
+ghc.exe : ghc-path
+  echo exec $(cat ghc-path) '"$@"' > ghc.exe; chmod +x ghc.exe
