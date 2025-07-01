@@ -16,15 +16,17 @@ solver.exe : ghc.exe main.o Sudoku.o
 
 # Choose a ghc binary and create a dispatcher script
 
-latest-version :
-  find $HOME/.stack | grep lib/.*/bin/ghc$ | rev | cut -d/ -f3 | rev | cut -d- -f2 | sort -n | tail -1 > latest-version
+versions :
+  find $HOME/.stack | grep lib/.*/bin/ghc$ | rev | cut -d/ -f3 | rev | cut -d- -f2 | sort -n > versions
 
-version : latest-version
-  cp latest-version version
-#echo 9.8.4 > version
+latest-version : versions
+  tail -1 versions > latest-version
 
-ghc-path : version
-  find $HOME/.stack | grep lib/.*/bin/ghc$ | grep $(cat version) > ghc-path
+selected-version : latest-version
+  cp latest-version selected-version
+
+ghc-path : selected-version
+  find $HOME/.stack | grep -v lib | grep bin/ghc$ | grep $(cat selected-version) > ghc-path
 
 ghc.exe : ghc-path
   echo exec $(cat ghc-path) '"$@"' > ghc.exe; chmod +x ghc.exe
