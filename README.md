@@ -9,19 +9,18 @@ The most difficult sudoku puzzle I know about was designed by
 [Arto Inkala](https://sudoku2.com/play-the-hardest-sudoku-in-the-world/).
 It takes this solver just over one second to find the solution and check it is the unique solution.
 
-### build/run (using haskell/stack):
+### build & check tests
 ```
-stack run puzzles/arto.s
+jenga build
 ```
 
-### build/test; timed run (using dune/cram)
+### time arto solve
 ```
-dune test
-dune build; time dune exec ./sudoku.exe puzzles/arto.s
+jenga build && time ,jenga/sudoku.exe puzzles/arto.s
 ```
 
 ### limit search to first N solutions
 ```
-dune exec -- ./sudoku.exe puzzles/arto.s -1
-dune exec -- ./sudoku.exe puzzles/empty.s -limit 5
+jenga run -- sudoku.exe puzzles/arto.s -1
+jenga run -- sudoku.exe puzzles/empty.s -limit 3
 ```
