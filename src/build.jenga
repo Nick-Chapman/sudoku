@@ -1,6 +1,6 @@
 
 executable-name:
-  echo solver.exe > executable-name
+  echo sudoku.exe > executable-name
 
 include ../../jenga/rulelib/haskell.jenga
 

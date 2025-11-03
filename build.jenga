@@ -1,0 +1,9 @@
+
+puz.files: puzzles/puz.list
+  cat puz.list | sed 's|^|puzzles/|' > puz.files
+
+test.out: test.sh src/sudoku.exe puzzles/puz.list @puz.files
+  ./test.sh $(cat puz.list) > test.out
+
+test.ok: test.out test.expected
+  git diff --word-diff=color test.out test.expected && echo ok > test.ok

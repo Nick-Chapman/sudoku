@@ -1,0 +1,3 @@
+
+puz.list: all.files
+  egrep '^[^#]+.s$' all.files | egrep -v '(empty)' | sort > puz.list
