@@ -16,11 +16,11 @@ jenga build
 
 ### time arto solve
 ```
-jenga build && time ,jenga/sudoku.exe puzzles/arto.s
+jenga build && time ./sudoku.exe puzzles/arto.s
 ```
 
 ### limit search to first N solutions
 ```
-jenga run -- sudoku.exe puzzles/arto.s -1
-jenga run -- sudoku.exe puzzles/empty.s -limit 3
+jenga build && ./sudoku.exe puzzles/arto.s -1
+jenga build && ./sudoku.exe puzzles/empty.s -limit 3
 ```

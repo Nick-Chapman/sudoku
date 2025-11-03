@@ -1,5 +1,5 @@
 
-sudoku.exe: src/sudoku.exe
+!sudoku.exe: src/sudoku.exe
 
 puz.files: puzzles/puz.list
   cat puz.list | sed 's|^|puzzles/|' > puz.files
