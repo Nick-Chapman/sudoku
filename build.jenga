@@ -1,8 +1,10 @@
 
-!sudoku.exe: src/sudoku.exe
+run.rules : puzzles/puz.names
+  cat puz.names | sed 's|\(.*\)|\1.out : src/sudoku.exe puzzles/\1.s : ./sudoku.exe \1.s > \1.out|' > $@
 
-puz.files: puzzles/puz.list
-  cat puz.list | sed 's|^|puzzles/|' > puz.files
+include run.rules
 
-!test.out: test.sh sudoku.exe puzzles/puz.list @puz.files
-  ./test.sh $(cat puz.list) > test.out
+expect.names : puzzles/puz.names
+  cat puz.names | sed 's|\(.*\)|\1.out|' > $@
+
+include /home/nic/code/jenga/rulelib/expect.rules
