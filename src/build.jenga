@@ -1,22 +1,20 @@
 
 executable-name:
-  echo sudoku.exe > executable-name
+  echo sudoku.exe > $@
 
 include ../../jenga/rulelib/haskell.jenga
 
 main-entry:
-  echo Sudoku > main-entry
+  echo Sudoku > $@
 
 ghc-version:
-  echo 9.8.4 > ghc-version
+  echo 9.8.4 > $@
 
 ghc-options:
-  touch ghc-options
-  echo -Werror >>ghc-options
-  echo -Wall >>ghc-options
-  echo -Wno-name-shadowing >>ghc-options
-  echo -O2 >>ghc-options
+  echo -Werror >> $@
+  echo -Wall >> $@
+  echo -Wno-name-shadowing >> $@
+  echo -O2 >> $@
 
 default-extensions:
-  touch default-extensions
-  echo LambdaCase >>default-extensions
+  echo LambdaCase >> $@

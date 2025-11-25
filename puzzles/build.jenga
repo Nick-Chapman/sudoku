@@ -2,4 +2,4 @@
 # we filter empty.s from the list of puzzles
 
 puz.names : all.files
-  egrep '^[^#]+.s$' all.files | egrep -v '(empty)' | sed 's|\(.*\).s|\1|' | sort > $@
+  egrep '^[^#]+.s$' $< | egrep -v '(empty)' | sed 's|\(.*\).s|\1|' | sort > $@
