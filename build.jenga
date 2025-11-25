@@ -5,6 +5,6 @@ run.rules : puzzles/puz.names
 include run.rules
 
 expect.names : puzzles/puz.names
-  cat puz.names | sed 's|\(.*\)|\1.out|' > $@
+  cat $^ | sed 's|\(.*\)|\1.out|' > $@
 
 include ~/code/jenga/rulelib/expect.jenga
