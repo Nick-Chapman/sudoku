@@ -1,10 +1,18 @@
 
-run.rules : puzzles/puz.names
+puz.files :
+  echo '$glob:puzzles' >> $@
+
+# we filter empty.s from the list of puzzles
+
+puz.names : puz.files
+  egrep '^[^#]+.s$' $< | egrep -v '(empty)' | sed 's|\(.*\).s|\1|' | sort > $@
+
+run.rules : puz.names
   cat $< | sed 's|\(.*\)|\1.out : src/sudoku.exe puzzles/\1.s : ./sudoku.exe \1.s > \1.out|' > $@
 
 include run.rules
 
-expect.names : puzzles/puz.names
+expect.names : puz.names
   cat $< | sed 's|\(.*\)|\1.out|' > $@
 
 include ~/code/jenga/rulelib/expect.jenga
